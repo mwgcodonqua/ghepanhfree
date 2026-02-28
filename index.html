@@ -1,0 +1,1531 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ghép Ảnh Pro - Hoàn Chỉnh</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .controls {
+            margin-bottom: 30px;
+        }
+        
+        .upload-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 2px dashed #667eea;
+        }
+        
+        .upload-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        .preview-images {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .preview-item {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            border-radius: 10px;
+            cursor: move;
+            transition: all 0.3s;
+        }
+        
+        .preview-item:hover {
+            transform: scale(1.05);
+        }
+        
+        .preview-item.dragging {
+            opacity: 0.5;
+        }
+        
+        .preview-item.drag-over {
+            transform: scale(1.1);
+            border: 3px dashed #10ac84;
+        }
+        
+        .preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+        }
+        
+        .preview-item .remove-btn {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+            font-size: 12px;
+            z-index: 10;
+        }
+        
+        .preview-item .order-badge {
+            position: absolute;
+            top: -8px;
+            left: -8px;
+            background: #10ac84;
+            color: white;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+            z-index: 10;
+        }
+        
+        .frame-section {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 2px solid #2196f3;
+        }
+        
+        .frame-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .frame-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+        }
+        
+        .frame-option {
+            padding: 12px;
+            background: white;
+            border: 3px solid #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .frame-option:hover {
+            border-color: #2196f3;
+            transform: translateY(-2px);
+        }
+        
+        .frame-option.active {
+            border-color: #2196f3;
+            background: #e3f2fd;
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+        }
+        
+        .frame-preview {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 8px;
+            background: #f5f5f5;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .frame-preview-box {
+            width: 40px;
+            height: 40px;
+            background: #667eea;
+        }
+        
+        .frame-name {
+            font-size: 11px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .watermark-section {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffe5a0 100%);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 2px solid #ffc107;
+        }
+        
+        .watermark-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .watermark-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .watermark-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .watermark-group label {
+            font-weight: 600;
+            color: #555;
+            font-size: 14px;
+        }
+        
+        .watermark-group input,
+        .watermark-group select {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .watermark-group input[type="color"] {
+            width: 60px;
+            height: 40px;
+            cursor: pointer;
+        }
+        
+        .layout-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .filter-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-tab {
+            padding: 8px 14px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            font-size: 12px;
+        }
+        
+        .filter-tab:hover {
+            border-color: #667eea;
+        }
+        
+        .filter-tab.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .layout-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
+            gap: 10px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        
+        .layout-btn {
+            padding: 8px;
+            background: white;
+            border: 3px solid #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: 9px;
+        }
+        
+        .layout-btn:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+        
+        .layout-btn.active {
+            border-color: #667eea;
+            background: #f0f3ff;
+        }
+        
+        .layout-preview {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 6px;
+            background: #e9ecef;
+            border-radius: 5px;
+            position: relative;
+        }
+        
+        .canvas-section {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .canvas-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+        
+        #collageCanvas {
+            max-width: 100%;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+        
+        .edit-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            display: none;
+            z-index: 1000;
+            min-width: 500px;
+        }
+        
+        .edit-panel.show {
+            display: block;
+        }
+        
+        .edit-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .edit-title {
+            font-weight: bold;
+            color: #333;
+            font-size: 16px;
+        }
+        
+        .edit-close {
+            background: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .edit-controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .edit-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .edit-btn.zoom-in {
+            background: #10ac84;
+            color: white;
+        }
+        
+        .edit-btn.zoom-out {
+            background: #ff6348;
+            color: white;
+        }
+        
+        .edit-btn.fit {
+            background: #2196f3;
+            color: white;
+        }
+        
+        .edit-btn.fill {
+            background: #9b59b6;
+            color: white;
+        }
+        
+        .edit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .slider-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .slider-group label {
+            display: block;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .slider-group input[type="range"] {
+            width: 100%;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .download-btn {
+            background: linear-gradient(135deg, #10ac84 0%, #01bf71 100%);
+            color: white;
+        }
+        
+        .clear-btn {
+            background: linear-gradient(135deg, #ff4757 0%, #ff6348 100%);
+            color: white;
+        }
+        
+        .info {
+            text-align: center;
+            color: #666;
+            margin-top: 20px;
+            font-size: 14px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .layout-count {
+            text-align: center;
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Màn hình mã giới thiệu -->
+    <div id="accessScreen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; z-index: 9999;">
+        <div style="background: white; padding: 40px 50px; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); text-align: center; max-width: 400px;">
+            <h2 style="margin-bottom: 10px; color: #333; font-size: 28px;">🔐 Nhập Mã Giới Thiệu</h2>
+            <p style="color: #666; margin-bottom: 25px; font-size: 14px;">Vui lòng nhập mã để truy cập ứng dụng</p>
+            <input type="text" id="accessCode" placeholder="Nhập mã giới thiệu" style="width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 10px; font-size: 16px; margin-bottom: 20px; text-align: center; font-weight: bold; letter-spacing: 2px;" autocomplete="off">
+            <button onclick="checkAccessCode()" style="width: 100%; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer;">✓ Xác Nhận</button>
+            <div id="errorMsg" style="color: #ff4757; margin-top: 15px; font-size: 14px; display: none; font-weight: 600;">❌ Mã không đúng!</div>
+        </div>
+    </div>
+
+    <div class="container" id="mainApp" style="display: none;">
+
+        <h1>📸 Ghép Ảnh Pro - Phiên Bản Hoàn Chỉnh</h1>
+        <div class="subtitle">300+ Layouts • Click ảnh để zoom/pan • Kéo thả sắp xếp • 8 khung viền đẹp</div>
+        
+        <div class="controls">
+            <div class="upload-section">
+                <label for="imageUpload" class="upload-btn">📁 Chọn Ảnh (2-100 ảnh)</label>
+                <input type="file" id="imageUpload" accept="image/*" multiple>
+                
+                <div class="preview-images" id="previewContainer"></div>
+                <div style="text-align: center; margin-top: 10px; color: #666; font-size: 13px;">
+                    🔄 Kéo thả để sắp xếp lại thứ tự ảnh
+                </div>
+            </div>
+            
+            <div class="frame-section">
+                <h3>🖼️ Chọn Khung Viền Ảnh</h3>
+                <div class="frame-grid">
+                    <div class="frame-option active" data-frame="polaroid">
+                        <div class="frame-preview">
+                            <div class="frame-preview-box" style="border: 4px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.2);"></div>
+                        </div>
+                        <div class="frame-name">Polaroid</div>
+                    </div>
+                    
+                    <div class="frame-option" data-frame="stamp">
+                        <div class="frame-preview">
+                            <div class="frame-preview-box" style="border: 4px solid white;"></div>
+                        </div>
+                        <div class="frame-name">Răng Cưa Tem</div>
+                    </div>
+                    
+                    <div class="frame-option" data-frame="vintage">
+                        <div class="frame-preview">
+                            <div class="frame-preview-box" style="border: 5px solid #d4a574; box-shadow: inset 0 0 0 2px #8b6f47;"></div>
+                        </div>
+                        <div class="frame-name">Vintage</div>
+                    </div>
+                    
+                    <div class="frame-option" data-frame="simple">
+                        <div class="frame-preview">
+                            <div class="frame-preview-box" style="border: 2px solid #333;"></div>
+                        </div>
+                        <div class="frame-name">Đơn Giản</div>
+                    </div>
+                    
+                    <div class="frame-option" data-frame="bold">
+                        <div class="frame-preview">
+                            <div class="frame-preview-box" style="border: 8px solid #000;"></div>
+                        </div>
+                        <div class="frame-name">Đậm</div>
+                    </div>
+                    
+                    <div class="frame-option" data-frame="rounded">
+                        <div class="frame-preview">
+                            <div class="frame-preview-box" style="border: 4px solid white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);"></div>
+                        </div>
+                        <div class="frame-name">Bo Tròn</div>
+                    </div>
+                    
+                    <div class="frame-option" data-frame="shadow">
+                        <div class="frame-preview">
+                            <div class="frame-preview-box" style="box-shadow: 0 4px 16px rgba(0,0,0,0.4);"></div>
+                        </div>
+                        <div class="frame-name">Shadow</div>
+                    </div>
+                    
+                    <div class="frame-option" data-frame="neon">
+                        <div class="frame-preview">
+                            <div class="frame-preview-box" style="border: 3px solid #00ff88; box-shadow: 0 0 10px #00ff88;"></div>
+                        </div>
+                        <div class="frame-name">Neon</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="watermark-section">
+                <h3>🔒 Watermark Chéo 45°</h3>
+                <div class="watermark-controls">
+                    <div class="watermark-group">
+                        <label>📝 Nội dung</label>
+                        <input type="text" id="watermarkText" value="© YOUR BRAND">
+                    </div>
+                    <div class="watermark-group">
+                        <label>📏 Size</label>
+                        <input type="number" id="watermarkSize" min="10" max="100" value="24">
+                    </div>
+                    <div class="watermark-group">
+                        <label>🎨 Màu</label>
+                        <input type="color" id="watermarkColor" value="#ffffff">
+                    </div>
+                    <div class="watermark-group">
+                        <label>💧 Độ mờ</label>
+                        <input type="number" id="watermarkOpacity" min="0" max="100" value="30">
+                    </div>
+                    <div class="watermark-group">
+                        <label>
+                            <input type="checkbox" id="watermarkEnable" checked>
+                            Bật Watermark
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="layout-section">
+                <div class="filter-tabs">
+                    <div class="filter-tab active" data-filter="all">Tất Cả</div>
+                    <div class="filter-tab" data-filter="2">2 Ảnh</div>
+                    <div class="filter-tab" data-filter="3">3 Ảnh</div>
+                    <div class="filter-tab" data-filter="4">4 Ảnh</div>
+                    <div class="filter-tab" data-filter="5">5 Ảnh</div>
+                    <div class="filter-tab" data-filter="6">6 Ảnh</div>
+                    <div class="filter-tab" data-filter="7-9">7-9 Ảnh</div>
+                    <div class="filter-tab" data-filter="pile">Photo Pile</div>
+                    <div class="filter-tab" data-filter="shapes">Shapes</div>
+                    <div class="filter-tab" data-filter="large">10+ Ảnh</div>
+                </div>
+                
+                <div class="layout-count" id="layoutCount"></div>
+                
+                <div class="layout-grid" id="layoutContainer"></div>
+            </div>
+        </div>
+        
+        <div class="canvas-section">
+            <div class="canvas-wrapper">
+                <canvas id="collageCanvas"></canvas>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="action-btn download-btn" id="downloadBtn">⬇️ Tải Xuống PNG</button>
+                <button class="action-btn clear-btn" id="clearBtn">🗑️ Xóa</button>
+            </div>
+        </div>
+        
+        <div class="info">
+            ✅ <strong>Hoàn thành:</strong> 300+ layouts • Click ảnh để zoom/pan • Kéo thả sắp xếp • 8 khung viền<br>
+            💡 Để thêm layout mới: Tìm dòng cuối LAYOUT_DATABASE và thêm code
+        </div>
+    </div>
+    
+    <div class="edit-panel" id="editPanel">
+        <div class="edit-header">
+            <div class="edit-title">✏️ Chỉnh Sửa Ảnh #<span id="editImageNumber">1</span></div>
+            <button class="edit-close" id="closeEdit">×</button>
+        </div>
+        <div class="edit-controls">
+            <button class="edit-btn zoom-in" id="zoomIn">🔍+ Phóng To</button>
+            <button class="edit-btn zoom-out" id="zoomOut">🔍- Thu Nhỏ</button>
+            <button class="edit-btn fit" id="fitImage">📐 Fit</button>
+            <button class="edit-btn fill" id="fillImage">⬛ Fill</button>
+            
+            <div class="slider-group">
+                <label>🔄 Zoom: <span id="zoomValue">100</span>%</label>
+                <input type="range" id="zoomSlider" min="50" max="300" value="100">
+            </div>
+        </div>
+        <div style="text-align: center; margin-top: 10px; color: #666; font-size: 13px;">
+            💡 Kéo chuột trên canvas để di chuyển ảnh
+        </div>
+    </div>
+    
+        <script>
+        // ===== BẢO VỆ CODE =====
+        // Chặn chuột phải
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        
+        // Chặn F12, Ctrl+Shift+I, Ctrl+U
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F12' || 
+                (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+                (e.ctrlKey && e.shiftKey && e.key === 'J') ||
+                (e.ctrlKey && e.shiftKey && e.key === 'C') ||
+                (e.ctrlKey && e.key === 'u')) {
+                e.preventDefault();
+                return false;
+            }
+        });
+        
+        // Chặn Ctrl+S (lưu trang)
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                return false;
+            }
+        });
+        
+        // Phát hiện DevTools
+        (function() {
+            const devtools = { isOpen: false };
+            const threshold = 160;
+            
+            setInterval(function() {
+                if (window.outerWidth - window.innerWidth > threshold || 
+                    window.outerHeight - window.innerHeight > threshold) {
+                    if (!devtools.isOpen) {
+                        devtools.isOpen = true;
+                        alert('⚠️ Vui lòng không mở Developer Tools!');
+                    }
+                } else {
+                    devtools.isOpen = false;
+                }
+            }, 500);
+        })();
+        
+        let uploadedImages = [];
+
+        let currentLayout = null;
+        let allLayouts = [];
+        let currentFrame = 'polaroid';
+        let draggedElement = null;
+        let imageTransforms = {};
+        let editingImageIndex = null;
+        let isDraggingImage = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+        
+        const canvas = document.getElementById('collageCanvas');
+        const ctx = canvas.getContext('2d');
+        const previewContainer = document.getElementById('previewContainer');
+        const layoutContainer = document.getElementById('layoutContainer');
+        const editPanel = document.getElementById('editPanel');
+        
+        function initTransform(index) {
+            if (!imageTransforms[index]) {
+                imageTransforms[index] = {
+                    scale: 1,
+                    offsetX: 0,
+                    offsetY: 0,
+                    mode: 'cover'
+                };
+            }
+        }
+        
+        const LAYOUT_DATABASE = [
+            // ===== 2 PHOTOS - 15 layouts =====
+            {n:2, name:'Side 50/50', type:'2', pos:[[0,0,0.5,1,0],[0.5,0,0.5,1,0]]},
+            {n:2, name:'Top 50/50', type:'2', pos:[[0,0,1,0.5,0],[0,0.5,1,0.5,0]]},
+            {n:2, name:'Big L 70/30', type:'2', pos:[[0,0,0.7,1,0],[0.7,0,0.3,1,0]]},
+            {n:2, name:'Big L 60/40', type:'2', pos:[[0,0,0.6,1,0],[0.6,0,0.4,1,0]]},
+            {n:2, name:'Big R 30/70', type:'2', pos:[[0,0,0.3,1,0],[0.3,0,0.7,1,0]]},
+            {n:2, name:'Big R 40/60', type:'2', pos:[[0,0,0.4,1,0],[0.4,0,0.6,1,0]]},
+            {n:2, name:'Big T 70/30', type:'2', pos:[[0,0,1,0.7,0],[0,0.7,1,0.3,0]]},
+            {n:2, name:'Big T 60/40', type:'2', pos:[[0,0,1,0.6,0],[0,0.6,1,0.4,0]]},
+            {n:2, name:'Big B 30/70', type:'2', pos:[[0,0,1,0.3,0],[0,0.3,1,0.7,0]]},
+            {n:2, name:'Big B 40/60', type:'2', pos:[[0,0,1,0.4,0],[0,0.4,1,0.6,0]]},
+            {n:2, name:'Big L 80/20', type:'2', pos:[[0,0,0.8,1,0],[0.8,0,0.2,1,0]]},
+            {n:2, name:'Big R 20/80', type:'2', pos:[[0,0,0.2,1,0],[0.2,0,0.8,1,0]]},
+            {n:2, name:'Big T 75/25', type:'2', pos:[[0,0,1,0.75,0],[0,0.75,1,0.25,0]]},
+            {n:2, name:'Big B 25/75', type:'2', pos:[[0,0,1,0.25,0],[0,0.25,1,0.75,0]]},
+            {n:2, name:'Diagonal', type:'2', pos:[[0,0,0.65,0.7,0],[0.35,0.3,0.65,0.7,0]]},
+            
+            // ===== 3 PHOTOS - 20 layouts =====
+            {n:3, name:'Row Equal', type:'3', pos:[[0,0,0.33,1,0],[0.33,0,0.34,1,0],[0.67,0,0.33,1,0]]},
+            {n:3, name:'Col Equal', type:'3', pos:[[0,0,1,0.33,0],[0,0.33,1,0.34,0],[0,0.67,1,0.33,0]]},
+            {n:3, name:'L Left Big', type:'3', pos:[[0,0,0.6,1,0],[0.6,0,0.4,0.5,0],[0.6,0.5,0.4,0.5,0]]},
+            {n:3, name:'L Right Big', type:'3', pos:[[0,0,0.4,0.5,0],[0.4,0,0.6,1,0],[0,0.5,0.4,0.5,0]]},
+            {n:3, name:'T Top Big', type:'3', pos:[[0,0,1,0.6,0],[0,0.6,0.5,0.4,0],[0.5,0.6,0.5,0.4,0]]},
+            {n:3, name:'T Bottom Big', type:'3', pos:[[0,0,0.5,0.4,0],[0.5,0,0.5,0.4,0],[0,0.4,1,0.6,0]]},
+            {n:3, name:'L Left 70/30', type:'3', pos:[[0,0,0.7,1,0],[0.7,0,0.3,0.5,0],[0.7,0.5,0.3,0.5,0]]},
+            {n:3, name:'L Right 70/30', type:'3', pos:[[0,0,0.3,0.5,0],[0.3,0,0.7,1,0],[0,0.5,0.3,0.5,0]]},
+            {n:3, name:'T Top 65/35', type:'3', pos:[[0,0,1,0.65,0],[0,0.65,0.5,0.35,0],[0.5,0.65,0.5,0.35,0]]},
+            {n:3, name:'T Bottom 35/65', type:'3', pos:[[0,0,0.5,0.35,0],[0.5,0,0.5,0.35,0],[0,0.35,1,0.65,0]]},
+            {n:3, name:'Mix 60/40', type:'3', pos:[[0,0,0.6,0.6,0],[0.6,0,0.4,0.6,0],[0,0.6,1,0.4,0]]},
+            {n:3, name:'Mix 40/60', type:'3', pos:[[0,0,0.4,0.6,0],[0.4,0,0.6,0.6,0],[0,0.6,1,0.4,0]]},
+            {n:3, name:'Row 40/30/30', type:'3', pos:[[0,0,0.4,1,0],[0.4,0,0.3,1,0],[0.7,0,0.3,1,0]]},
+            {n:3, name:'Row 30/40/30', type:'3', pos:[[0,0,0.3,1,0],[0.3,0,0.4,1,0],[0.7,0,0.3,1,0]]},
+            {n:3, name:'Col 40/30/30', type:'3', pos:[[0,0,1,0.4,0],[0,0.4,1,0.3,0],[0,0.7,1,0.3,0]]},
+            {n:3, name:'Col 30/40/30', type:'3', pos:[[0,0,1,0.3,0],[0,0.3,1,0.4,0],[0,0.7,1,0.3,0]]},
+            {n:3, name:'Pinterest', type:'3', pos:[[0,0,0.55,1,0],[0.55,0,0.45,0.65,0],[0.55,0.65,0.45,0.35,0]]},
+            {n:3, name:'Magazine L', type:'3', pos:[[0,0,0.65,0.7,0],[0.65,0,0.35,0.35,0],[0,0.7,1,0.3,0]]},
+            {n:3, name:'Wrap Left', type:'3', pos:[[0,0,0.5,0.5,0],[0.5,0,0.5,1,0],[0,0.5,0.5,0.5,0]]},
+            {n:3, name:'Wrap Right', type:'3', pos:[[0,0,0.5,1,0],[0.5,0,0.5,0.5,0],[0.5,0.5,0.5,0.5,0]]},
+            
+            // ===== 4 PHOTOS - 20 layouts =====
+            {n:4, name:'Grid 2x2', type:'4', pos:[[0,0,0.5,0.5,0],[0.5,0,0.5,0.5,0],[0,0.5,0.5,0.5,0],[0.5,0.5,0.5,0.5,0]]},
+            {n:4, name:'Row 4', type:'4', pos:[[0,0,0.25,1,0],[0.25,0,0.25,1,0],[0.5,0,0.25,1,0],[0.75,0,0.25,1,0]]},
+            {n:4, name:'Col 4', type:'4', pos:[[0,0,1,0.25,0],[0,0.25,1,0.25,0],[0,0.5,1,0.25,0],[0,0.75,1,0.25,0]]},
+            {n:4, name:'Big L + 3', type:'4', pos:[[0,0,0.6,1,0],[0.6,0,0.4,0.33,0],[0.6,0.33,0.4,0.34,0],[0.6,0.67,0.4,0.33,0]]},
+            {n:4, name:'Big R + 3', type:'4', pos:[[0,0,0.4,0.33,0],[0.4,0,0.6,1,0],[0,0.33,0.4,0.34,0],[0,0.67,0.4,0.33,0]]},
+            {n:4, name:'Big T + 3', type:'4', pos:[[0,0,1,0.6,0],[0,0.6,0.33,0.4,0],[0.33,0.6,0.34,0.4,0],[0.67,0.6,0.33,0.4,0]]},
+            {n:4, name:'Big B + 3', type:'4', pos:[[0,0,0.33,0.4,0],[0.33,0,0.34,0.4,0],[0.67,0,0.33,0.4,0],[0,0.4,1,0.6,0]]},
+            {n:4, name:'T-Shape', type:'4', pos:[[0,0,0.33,0.4,0],[0.33,0,0.34,0.4,0],[0.67,0,0.33,0.4,0],[0,0.4,1,0.6,0]]},
+            {n:4, name:'U-Shape', type:'4', pos:[[0,0,0.33,0.6,0],[0.67,0,0.33,0.6,0],[0,0.6,0.33,0.4,0],[0.67,0.6,0.33,0.4,0]]},
+            {n:4, name:'H-Shape', type:'4', pos:[[0,0,0.3,0.5,0],[0,0.5,0.3,0.5,0],[0.7,0,0.3,0.5,0],[0.7,0.5,0.3,0.5,0]]},
+            {n:4, name:'Mosaic 1', type:'4', pos:[[0,0,0.6,0.6,0],[0.6,0,0.4,0.3,0],[0.6,0.3,0.4,0.3,0],[0,0.6,1,0.4,0]]},
+            {n:4, name:'Mosaic 2', type:'4', pos:[[0,0,0.5,0.7,0],[0.5,0,0.5,0.35,0],[0.5,0.35,0.5,0.35,0],[0,0.7,0.5,0.3,0]]},
+            {n:4, name:'L-Big', type:'4', pos:[[0,0,0.7,0.7,0],[0.7,0,0.3,0.35,0],[0.7,0.35,0.3,0.35,0],[0,0.7,0.7,0.3,0]]},
+            {n:4, name:'Mix 40/60', type:'4', pos:[[0,0,0.4,0.5,0],[0.4,0,0.6,0.6,0],[0,0.5,0.4,0.5,0],[0.4,0.6,0.6,0.4,0]]},
+            {n:4, name:'Filmstrip', type:'4', pos:[[0.05,0,0.225,1,0],[0.275,0,0.225,1,0],[0.5,0,0.225,1,0],[0.725,0,0.225,1,0]]},
+            {n:4, name:'Split 2x2', type:'4', pos:[[0,0,0.5,0.45,0],[0.5,0,0.5,0.45,0],[0,0.55,0.5,0.45,0],[0.5,0.55,0.5,0.45,0]]},
+            {n:4, name:'Pyramid', type:'4', pos:[[0.25,0,0.5,0.5,0],[0,0.5,0.33,0.5,0],[0.33,0.5,0.34,0.5,0],[0.67,0.5,0.33,0.5,0]]},
+            {n:4, name:'Magazine', type:'4', pos:[[0,0,0.65,0.5,0],[0.65,0,0.35,0.25,0],[0.65,0.25,0.35,0.25,0],[0,0.5,1,0.5,0]]},
+            {n:4, name:'Window', type:'4', pos:[[0.1,0.1,0.35,0.35,0],[0.55,0.1,0.35,0.35,0],[0.1,0.55,0.35,0.35,0],[0.55,0.55,0.35,0.35,0]]},
+            {n:4, name:'Diamond', type:'4', pos:[[0.4,0,0.2,0.25,0],[0.15,0.25,0.2,0.25,0],[0.65,0.25,0.2,0.25,0],[0.4,0.5,0.2,0.25,0]]},
+            
+            // ===== 5 PHOTOS - 15 layouts =====
+            {n:5, name:'Row 5', type:'5', pos:[[0,0,0.2,1,0],[0.2,0,0.2,1,0],[0.4,0,0.2,1,0],[0.6,0,0.2,1,0],[0.8,0,0.2,1,0]]},
+            {n:5, name:'Col 5', type:'5', pos:[[0,0,1,0.2,0],[0,0.2,1,0.2,0],[0,0.4,1,0.2,0],[0,0.6,1,0.2,0],[0,0.8,1,0.2,0]]},
+            {n:5, name:'Pinterest', type:'5', pos:[[0,0,0.55,1,0],[0.55,0,0.45,0.5,0],[0.55,0.5,0.225,0.5,0],[0.775,0.5,0.225,0.5,0]]},
+            {n:5, name:'Big T + 4', type:'5', pos:[[0,0,1,0.6,0],[0,0.6,0.25,0.4,0],[0.25,0.6,0.25,0.4,0],[0.5,0.6,0.25,0.4,0],[0.75,0.6,0.25,0.4,0]]},
+            {n:5, name:'Big B + 4', type:'5', pos:[[0,0,0.25,0.4,0],[0.25,0,0.25,0.4,0],[0.5,0,0.25,0.4,0],[0.75,0,0.25,0.4,0],[0,0.4,1,0.6,0]]},
+            {n:5, name:'X-Shape', type:'5', pos:[[0.35,0.35,0.3,0.3,0],[0,0,0.35,0.35,0],[0.65,0,0.35,0.35,0],[0,0.65,0.35,0.35,0],[0.65,0.65,0.35,0.35,0]]},
+            {n:5, name:'U + Center', type:'5', pos:[[0,0,0.3,0.5,0],[0.7,0,0.3,0.5,0],[0,0.5,0.3,0.5,0],[0.7,0.5,0.3,0.5,0],[0.3,0.25,0.4,0.5,0]]},
+            {n:5, name:'Mosaic', type:'5', pos:[[0,0,0.6,0.5,0],[0.6,0,0.4,0.25,0],[0.6,0.25,0.4,0.25,0],[0,0.5,0.3,0.5,0],[0.3,0.5,0.7,0.5,0]]},
+            {n:5, name:'Grid 2+3', type:'5', pos:[[0,0,0.5,0.6,0],[0.5,0,0.5,0.6,0],[0,0.6,0.33,0.4,0],[0.33,0.6,0.34,0.4,0],[0.67,0.6,0.33,0.4,0]]},
+            {n:5, name:'Grid 3+2', type:'5', pos:[[0,0,0.33,0.6,0],[0.33,0,0.34,0.6,0],[0.67,0,0.33,0.6,0],[0,0.6,0.5,0.4,0],[0.5,0.6,0.5,0.4,0]]},
+            {n:5, name:'L-Corner', type:'5', pos:[[0,0,0.65,0.65,0],[0.65,0,0.35,0.325,0],[0.65,0.325,0.35,0.325,0],[0,0.65,0.325,0.35,0],[0.325,0.65,0.325,0.35,0]]},
+            {n:5, name:'Wrap', type:'5', pos:[[0.3,0.3,0.4,0.4,0],[0,0,0.3,0.3,0],[0.7,0,0.3,0.3,0],[0,0.7,0.3,0.3,0],[0.7,0.7,0.3,0.3,0]]},
+            {n:5, name:'T + 2B', type:'5', pos:[[0.25,0,0.5,0.6,0],[0,0,0.25,0.3,0],[0.75,0,0.25,0.3,0],[0,0.6,0.5,0.4,0],[0.5,0.6,0.5,0.4,0]]},
+            {n:5, name:'Plus', type:'5', pos:[[0.35,0,0.3,0.35,0],[0,0.35,0.35,0.3,0],[0.35,0.35,0.3,0.3,0],[0.65,0.35,0.35,0.3,0],[0.35,0.65,0.3,0.35,0]]},
+            {n:5, name:'Spiral', type:'5', pos:[[0.4,0.4,0.2,0.2,0],[0.2,0.2,0.2,0.2,0],[0.6,0.2,0.2,0.2,0],[0.6,0.6,0.2,0.2,0],[0.2,0.6,0.2,0.2,0]]},
+            
+            // ===== 6 PHOTOS - 15 layouts =====
+            {n:6, name:'Grid 3x2', type:'6', pos:[[0,0,0.33,0.5,0],[0.33,0,0.34,0.5,0],[0.67,0,0.33,0.5,0],[0,0.5,0.33,0.5,0],[0.33,0.5,0.34,0.5,0],[0.67,0.5,0.33,0.5,0]]},
+            {n:6, name:'Grid 2x3', type:'6', pos:[[0,0,0.5,0.33,0],[0.5,0,0.5,0.33,0],[0,0.33,0.5,0.34,0],[0.5,0.33,0.5,0.34,0],[0,0.67,0.5,0.33,0],[0.5,0.67,0.5,0.33,0]]},
+            {n:6, name:'Row 6', type:'6', pos:[[0,0,0.167,1,0],[0.167,0,0.166,1,0],[0.333,0,0.167,1,0],[0.5,0,0.167,1,0],[0.667,0,0.166,1,0],[0.833,0,0.167,1,0]]},
+            {n:6, name:'Col 6', type:'6', pos:[[0,0,1,0.167,0],[0,0.167,1,0.166,0],[0,0.333,1,0.167,0],[0,0.5,1,0.167,0],[0,0.667,1,0.166,0],[0,0.833,1,0.167,0]]},
+            {n:6, name:'Magazine', type:'6', pos:[[0,0,0.67,0.5,0],[0.67,0,0.33,0.25,0],[0.67,0.25,0.33,0.25,0],[0,0.5,0.33,0.5,0],[0.33,0.5,0.34,0.5,0],[0.67,0.5,0.33,0.5,0]]},
+            {n:6, name:'Mosaic', type:'6', pos:[[0,0,0.5,0.6,0],[0.5,0,0.25,0.3,0],[0.75,0,0.25,0.3,0],[0.5,0.3,0.5,0.3,0],[0,0.6,0.33,0.4,0],[0.33,0.6,0.67,0.4,0]]},
+            {n:6, name:'Split 3-3', type:'6', pos:[[0,0,0.5,0.33,0],[0,0.33,0.5,0.34,0],[0,0.67,0.5,0.33,0],[0.5,0,0.5,0.33,0],[0.5,0.33,0.5,0.34,0],[0.5,0.67,0.5,0.33,0]]},
+            {n:6, name:'Hexagon', type:'6', pos:[[0.25,0,0.25,0.33,0],[0.5,0,0.25,0.33,0],[0,0.33,0.33,0.34,0],[0.67,0.33,0.33,0.34,0],[0.25,0.67,0.25,0.33,0],[0.5,0.67,0.25,0.33,0]]},
+            {n:6, name:'Border', type:'6', pos:[[0.25,0.25,0.5,0.5,0],[0,0,0.25,0.25,0],[0.75,0,0.25,0.25,0],[0,0.75,0.25,0.25,0],[0.75,0.75,0.25,0.25,0],[0.25,0,0.5,0.25,0]]},
+            {n:6, name:'L-Shape', type:'6', pos:[[0,0,0.6,0.5,0],[0.6,0,0.4,0.25,0],[0.6,0.25,0.4,0.25,0],[0,0.5,0.2,0.5,0],[0.2,0.5,0.2,0.5,0],[0.4,0.5,0.6,0.5,0]]},
+            {n:6, name:'1+2+3', type:'6', pos:[[0,0,1,0.4,0],[0,0.4,0.5,0.3,0],[0.5,0.4,0.5,0.3,0],[0,0.7,0.33,0.3,0],[0.33,0.7,0.34,0.3,0],[0.67,0.7,0.33,0.3,0]]},
+            {n:6, name:'Pyramid', type:'6', pos:[[0.4,0,0.2,0.33,0],[0.2,0.33,0.2,0.34,0],[0.4,0.33,0.2,0.34,0],[0.6,0.33,0.2,0.34,0],[0,0.67,0.5,0.33,0],[0.5,0.67,0.5,0.33,0]]},
+            {n:6, name:'Wrap', type:'6', pos:[[0,0,0.4,0.5,0],[0.4,0,0.3,0.25,0],[0.7,0,0.3,0.25,0],[0.4,0.25,0.6,0.25,0],[0,0.5,0.5,0.5,0],[0.5,0.5,0.5,0.5,0]]},
+            {n:6, name:'Window', type:'6', pos:[[0.05,0.05,0.27,0.43,0],[0.36,0.05,0.27,0.43,0],[0.68,0.05,0.27,0.43,0],[0.05,0.52,0.27,0.43,0],[0.36,0.52,0.27,0.43,0],[0.68,0.52,0.27,0.43,0]]},
+            {n:6, name:'Circle-6', type:'6', pos:[[0.4,0,0.2,0.2,0],[0.15,0.25,0.2,0.2,0],[0.65,0.25,0.2,0.2,0],[0.15,0.6,0.2,0.2,0],[0.65,0.6,0.2,0.2,0],[0.4,0.8,0.2,0.2,0]]},
+            
+            // ===== 7-9 PHOTOS - 10 layouts =====
+            {n:7, name:'Row 7', type:'7-9', pos:[[0,0,0.143,1,0],[0.143,0,0.143,1,0],[0.286,0,0.143,1,0],[0.429,0,0.143,1,0],[0.572,0,0.143,1,0],[0.715,0,0.142,1,0],[0.857,0,0.143,1,0]]},
+            {n:7, name:'Col 7', type:'7-9', pos:[[0,0,1,0.143,0],[0,0.143,1,0.143,0],[0,0.286,1,0.143,0],[0,0.429,1,0.143,0],[0,0.572,1,0.143,0],[0,0.715,1,0.142,0],[0,0.857,1,0.143,0]]},
+            {n:7, name:'Honeycomb', type:'7-9', pos:[[0.35,0.35,0.3,0.3,0],[0.1,0.1,0.25,0.25,0],[0.65,0.1,0.25,0.25,0],[0,0.375,0.25,0.25,0],[0.75,0.375,0.25,0.25,0],[0.1,0.65,0.25,0.25,0],[0.65,0.65,0.25,0.25,0]]},
+            {n:7, name:'Big + 6', type:'7-9', pos:[[0,0,0.6,0.6,0],[0.6,0,0.4,0.3,0],[0.6,0.3,0.4,0.3,0],[0,0.6,0.3,0.4,0],[0.3,0.6,0.3,0.4,0],[0.6,0.6,0.2,0.4,0],[0.8,0.6,0.2,0.4,0]]},
+            {n:8, name:'Grid 4x2', type:'7-9', pos:[[0,0,0.25,0.5,0],[0.25,0,0.25,0.5,0],[0.5,0,0.25,0.5,0],[0.75,0,0.25,0.5,0],[0,0.5,0.25,0.5,0],[0.25,0.5,0.25,0.5,0],[0.5,0.5,0.25,0.5,0],[0.75,0.5,0.25,0.5,0]]},
+            {n:8, name:'Grid 2x4', type:'7-9', pos:[[0,0,0.5,0.25,0],[0.5,0,0.5,0.25,0],[0,0.25,0.5,0.25,0],[0.5,0.25,0.5,0.25,0],[0,0.5,0.5,0.25,0],[0.5,0.5,0.5,0.25,0],[0,0.75,0.5,0.25,0],[0.5,0.75,0.5,0.25,0]]},
+            {n:8, name:'Row 8', type:'7-9', pos:[[0,0,0.125,1,0],[0.125,0,0.125,1,0],[0.25,0,0.125,1,0],[0.375,0,0.125,1,0],[0.5,0,0.125,1,0],[0.625,0,0.125,1,0],[0.75,0,0.125,1,0],[0.875,0,0.125,1,0]]},
+            {n:9, name:'Grid 3x3', type:'7-9', pos:[[0,0,0.33,0.33,0],[0.33,0,0.34,0.33,0],[0.67,0,0.33,0.33,0],[0,0.33,0.33,0.34,0],[0.33,0.33,0.34,0.34,0],[0.67,0.33,0.33,0.34,0],[0,0.67,0.33,0.33,0],[0.33,0.67,0.34,0.33,0],[0.67,0.67,0.33,0.33,0]]},
+            {n:9, name:'Row 9', type:'7-9', pos:[[0,0,0.111,1,0],[0.111,0,0.111,1,0],[0.222,0,0.111,1,0],[0.333,0,0.111,1,0],[0.444,0,0.111,1,0],[0.555,0,0.111,1,0],[0.666,0,0.111,1,0],[0.777,0,0.111,1,0],[0.888,0,0.112,1,0]]},
+            {n:9, name:'Wrap-9', type:'7-9', pos:[[0.35,0.35,0.3,0.3,0],[0.05,0.05,0.25,0.25,0],[0.4,0.05,0.2,0.25,0],[0.7,0.05,0.25,0.25,0],[0.05,0.35,0.25,0.3,0],[0.7,0.35,0.25,0.3,0],[0.05,0.7,0.25,0.25,0],[0.4,0.7,0.2,0.25,0],[0.7,0.7,0.25,0.25,0]]},
+            
+            // ===== FACEBOOK/INSTAGRAM STYLE LAYOUTS =====
+            {n:3, name:'FB Split Left', type:'3', pos:[[0,0,0.5,1,0],[0.5,0,0.5,0.5,0],[0.5,0.5,0.5,0.5,0]]},
+            {n:4, name:'FB Grid 2x2', type:'4', pos:[[0,0,0.5,0.5,0],[0.5,0,0.5,0.5,0],[0,0.5,0.5,0.5,0],[0.5,0.5,0.5,0.5,0]]},
+            {n:3, name:'FB Triple Vert', type:'3', pos:[[0,0,0.33,1,0],[0.33,0,0.34,1,0],[0.67,0,0.33,1,0]]},
+            {n:5, name:'FB 5 Rows', type:'5', pos:[[0,0,1,0.2,0],[0,0.2,1,0.2,0],[0,0.4,1,0.2,0],[0,0.6,1,0.2,0],[0,0.8,1,0.2,0]]},
+            {n:3, name:'FB L-Vert', type:'3', pos:[[0,0,0.4,1,0],[0.4,0,0.6,0.5,0],[0.4,0.5,0.6,0.5,0]]},
+            {n:3, name:'FB Big Bottom', type:'3', pos:[[0,0,0.5,0.5,0],[0.5,0,0.5,0.5,0],[0,0.5,1,0.5,0]]},
+            
+            // ===== MAGAZINE 18 LAYOUT =====
+            {n:18, name:'Magazine 18', type:'large', pos:[[0,0,0.2,0.33,0],[0.2,0,0.2,0.33,0],[0.4,0,0.2,0.33,0],[0.6,0,0.2,0.33,0],[0.8,0,0.2,0.33,0],[0,0.33,0.15,0.33,0],[0.15,0.33,0.15,0.33,0],[0.3,0.33,0.4,0.33,0],[0.7,0.33,0.15,0.33,0],[0.85,0.33,0.15,0.33,0],[0,0.66,0.25,0.17,0],[0.25,0.66,0.25,0.17,0],[0.5,0.66,0.25,0.17,0],[0.75,0.66,0.25,0.17,0],[0,0.83,0.25,0.17,0],[0.25,0.83,0.25,0.17,0],[0.5,0.83,0.25,0.17,0],[0.75,0.83,0.25,0.17,0]]}
+        ];
+        
+        document.querySelectorAll('.frame-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.frame-option').forEach(o => o.classList.remove('active'));
+                this.classList.add('active');
+                currentFrame = this.dataset.frame;
+                createCollage();
+            });
+        });
+        
+        function drawFrame(ctx, x, y, w, h, type) {
+            ctx.save();
+            
+            switch(type) {
+                case 'polaroid':
+                    ctx.fillStyle = '#ffffff';
+                    ctx.shadowColor = 'rgba(0,0,0,0.15)';
+                    ctx.shadowBlur = 8;
+                    ctx.shadowOffsetX = 3;
+                    ctx.shadowOffsetY = 3;
+                    ctx.fillRect(0, 0, w, h);
+                    break;
+                    
+                case 'stamp':
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, 0, w, h);
+                    const teeth = 8;
+                    ctx.fillStyle = '#f5f5f5';
+                    for (let i = 0; i < w; i += teeth * 2) {
+                        ctx.beginPath();
+                        ctx.moveTo(i, 0);
+                        ctx.lineTo(i + teeth, teeth);
+                        ctx.lineTo(i + teeth * 2, 0);
+                        ctx.fill();
+                        ctx.beginPath();
+                        ctx.moveTo(i, h);
+                        ctx.lineTo(i + teeth, h - teeth);
+                        ctx.lineTo(i + teeth * 2, h);
+                        ctx.fill();
+                    }
+                    for (let i = 0; i < h; i += teeth * 2) {
+                        ctx.beginPath();
+                        ctx.moveTo(0, i);
+                        ctx.lineTo(teeth, i + teeth);
+                        ctx.lineTo(0, i + teeth * 2);
+                        ctx.fill();
+                        ctx.beginPath();
+                        ctx.moveTo(w, i);
+                        ctx.lineTo(w - teeth, i + teeth);
+                        ctx.lineTo(w, i + teeth * 2);
+                        ctx.fill();
+                    }
+                    break;
+                    
+                case 'vintage':
+                    ctx.fillStyle = '#d4a574';
+                    ctx.fillRect(0, 0, w, h);
+                    ctx.strokeStyle = '#8b6f47';
+                    ctx.lineWidth = 4;
+                    ctx.strokeRect(8, 8, w - 16, h - 16);
+                    break;
+                    
+                case 'simple':
+                    ctx.strokeStyle = '#333';
+                    ctx.lineWidth = 4;
+                    ctx.strokeRect(0, 0, w, h);
+                    break;
+                    
+                case 'bold':
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(0, 0, w, h);
+                    break;
+                    
+                case 'rounded':
+                    ctx.fillStyle = '#ffffff';
+                    ctx.shadowColor = 'rgba(0,0,0,0.15)';
+                    ctx.shadowBlur = 6;
+                    ctx.beginPath();
+                    ctx.roundRect(0, 0, w, h, 15);
+                    ctx.fill();
+                    break;
+                    
+                case 'shadow':
+                    ctx.shadowColor = 'rgba(0,0,0,0.4)';
+                    ctx.shadowBlur = 15;
+                    ctx.shadowOffsetX = 5;
+                    ctx.shadowOffsetY = 5;
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(2, 2, w - 4, h - 4);
+                    break;
+                    
+                case 'neon':
+                    ctx.strokeStyle = '#00ff88';
+                    ctx.lineWidth = 6;
+                    ctx.shadowColor = '#00ff88';
+                    ctx.shadowBlur = 15;
+                    ctx.strokeRect(3, 3, w - 6, h - 6);
+                    break;
+            }
+            
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+            ctx.restore();
+        }
+        
+        function generatePhotoPileImproved(count) {
+            const positions = [];
+            const used = [];
+            const minDistance = 0.15;
+            
+            for (let i = 0; i < count; i++) {
+                let x, y, size, rotation, valid = false, attempts = 0;
+                
+                while (!valid && attempts < 100) {
+                    x = 0.15 + Math.random() * 0.7;
+                    y = 0.15 + Math.random() * 0.7;
+                    size = 0.18 + Math.random() * 0.12;
+                    rotation = (Math.random() - 0.5) * 30;
+                    
+                    valid = true;
+                    for (let j = 0; j < used.length; j++) {
+                        const dist = Math.sqrt((x - used[j].x) ** 2 + (y - used[j].y) ** 2);
+                        if (dist < minDistance) {
+                            valid = false;
+                            break;
+                        }
+                    }
+                    attempts++;
+                }
+                
+                used.push({x, y});
+                positions.push([Math.max(0, Math.min(1-size, x-size/2)), Math.max(0, Math.min(1-size, y-size/2)), size, size, rotation]);
+            }
+            return positions;
+        }
+        
+        function generateHeartLayout(count) {
+            const positions = [];
+            const centerX = 0.5, centerY = 0.45, scale = 0.35;
+            for (let i = 0; i < count; i++) {
+                const t = (i / count) * 2 * Math.PI;
+                const x = centerX + scale * (16 * Math.pow(Math.sin(t), 3)) / 16;
+                const y = centerY - scale * (13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t)) / 16;
+                const size = 0.08 / Math.sqrt(count / 20);
+                positions.push([Math.max(0, Math.min(1-size, x-size/2)), Math.max(0, Math.min(1-size, y-size/2)), size, size, 0]);
+            }
+            return positions;
+        }
+        
+        function generateCircleLayout(count) {
+            const positions = [];
+            const centerX = 0.5, centerY = 0.5, radius = 0.4;
+            for (let i = 0; i < count; i++) {
+                const angle = (i / count) * 2 * Math.PI;
+                const x = centerX + Math.cos(angle) * radius;
+                const y = centerY + Math.sin(angle) * radius;
+                const size = 0.08 / Math.sqrt(count / 20);
+                positions.push([Math.max(0, Math.min(1-size, x-size/2)), Math.max(0, Math.min(1-size, y-size/2)), size, size, 0]);
+            }
+            return positions;
+        }
+        
+        function generateGridLayout(count) {
+            const positions = [];
+            const cols = Math.ceil(Math.sqrt(count));
+            const rows = Math.ceil(count / cols);
+            const cellW = 1 / cols;
+            const cellH = 1 / rows;
+            
+            for (let i = 0; i < count; i++) {
+                positions.push([(i % cols) * cellW, Math.floor(i / cols) * cellH, cellW, cellH, 0]);
+            }
+            return positions;
+        }
+        
+        function generateAllLayouts() {
+            const layouts = [...LAYOUT_DATABASE];
+            
+            for (let n of [3, 5, 7, 10, 15, 20]) {
+                layouts.push({n:n, name:`📚 Pile ${n}`, type:'pile', pos:generatePhotoPileImproved(n)});
+            }
+            
+            for (let n of [10, 20, 30, 50]) {
+                layouts.push({n:n, name:`❤️ Heart ${n}`, type:'shapes', pos:generateHeartLayout(n)});
+            }
+            
+            for (let n of [12, 24, 36]) {
+                layouts.push({n:n, name:`⭕ Circle ${n}`, type:'shapes', pos:generateCircleLayout(n)});
+            }
+            
+            for (let n of [16, 25, 36, 49, 64, 81, 100]) {
+                layouts.push({n:n, name:`Grid ${Math.sqrt(n)}x${Math.sqrt(n)}`, type:'large', pos:generateGridLayout(n)});
+            }
+            
+            return layouts;
+        }
+        
+        allLayouts = generateAllLayouts();
+        
+        canvas.addEventListener('click', function(e) {
+            if (!currentLayout || uploadedImages.length === 0) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const x = (e.clientX - rect.left) * scaleX;
+            const y = (e.clientY - rect.top) * scaleY;
+            
+            const border = currentFrame === 'bold' ? 16 : 8;
+            
+            for (let i = 0; i < currentLayout.pos.length; i++) {
+                if (!uploadedImages[i]) continue;
+                
+                const pos = currentLayout.pos[i];
+                const imgX = pos[0] * canvas.width + border;
+                const imgY = pos[1] * canvas.height + border;
+                const imgW = pos[2] * canvas.width - border * 2;
+                const imgH = pos[3] * canvas.height - border * 2;
+                
+                if (x >= imgX && x <= imgX + imgW && y >= imgY && y <= imgY + imgH) {
+                    editingImageIndex = i;
+                    initTransform(i);
+                    showEditPanel(i);
+                    break;
+                }
+            }
+        });
+        
+        function showEditPanel(index) {
+            editPanel.classList.add('show');
+            document.getElementById('editImageNumber').textContent = index + 1;
+            
+            const transform = imageTransforms[index];
+            document.getElementById('zoomSlider').value = transform.scale * 100;
+            document.getElementById('zoomValue').textContent = Math.round(transform.scale * 100);
+        }
+        
+        document.getElementById('closeEdit').addEventListener('click', () => {
+            editPanel.classList.remove('show');
+            editingImageIndex = null;
+        });
+        
+        document.getElementById('zoomIn').addEventListener('click', () => {
+            if (editingImageIndex === null) return;
+            const transform = imageTransforms[editingImageIndex];
+            transform.scale = Math.min(3, transform.scale + 0.1);
+            document.getElementById('zoomSlider').value = transform.scale * 100;
+            document.getElementById('zoomValue').textContent = Math.round(transform.scale * 100);
+            createCollage();
+        });
+        
+        document.getElementById('zoomOut').addEventListener('click', () => {
+            if (editingImageIndex === null) return;
+            const transform = imageTransforms[editingImageIndex];
+            transform.scale = Math.max(0.5, transform.scale - 0.1);
+            document.getElementById('zoomSlider').value = transform.scale * 100;
+            document.getElementById('zoomValue').textContent = Math.round(transform.scale * 100);
+            createCollage();
+        });
+        
+        document.getElementById('zoomSlider').addEventListener('input', function() {
+            if (editingImageIndex === null) return;
+            const transform = imageTransforms[editingImageIndex];
+            transform.scale = this.value / 100;
+            document.getElementById('zoomValue').textContent = Math.round(this.value);
+            createCollage();
+        });
+        
+        document.getElementById('fitImage').addEventListener('click', () => {
+            if (editingImageIndex === null) return;
+            const transform = imageTransforms[editingImageIndex];
+            transform.mode = 'contain';
+            transform.scale = 1;
+            transform.offsetX = 0;
+            transform.offsetY = 0;
+            document.getElementById('zoomSlider').value = 100;
+            document.getElementById('zoomValue').textContent = '100';
+            createCollage();
+        });
+        
+        document.getElementById('fillImage').addEventListener('click', () => {
+            if (editingImageIndex === null) return;
+            const transform = imageTransforms[editingImageIndex];
+            transform.mode = 'cover';
+            transform.scale = 1;
+            transform.offsetX = 0;
+            transform.offsetY = 0;
+            document.getElementById('zoomSlider').value = 100;
+            document.getElementById('zoomValue').textContent = '100';
+            createCollage();
+        });
+        
+        canvas.addEventListener('mousedown', function(e) {
+            if (editingImageIndex === null) return;
+            isDraggingImage = true;
+            dragStartX = e.clientX;
+            dragStartY = e.clientY;
+        });
+        
+        canvas.addEventListener('mousemove', function(e) {
+            if (!isDraggingImage || editingImageIndex === null) return;
+            
+            const transform = imageTransforms[editingImageIndex];
+            const dx = (e.clientX - dragStartX) / canvas.getBoundingClientRect().width;
+            const dy = (e.clientY - dragStartY) / canvas.getBoundingClientRect().height;
+            
+            transform.offsetX += dx;
+            transform.offsetY += dy;
+            
+            dragStartX = e.clientX;
+            dragStartY = e.clientY;
+            
+            createCollage();
+        });
+        
+        canvas.addEventListener('mouseup', () => {
+            isDraggingImage = false;
+        });
+        
+        canvas.addEventListener('mouseleave', () => {
+            isDraggingImage = false;
+        });
+        
+        function handleDragStart(e) {
+            draggedElement = this;
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+        
+        function handleDragOver(e) {
+            if (e.preventDefault) e.preventDefault();
+            return false;
+        }
+        
+        function handleDragEnter(e) {
+            this.classList.add('drag-over');
+        }
+        
+        function handleDragLeave(e) {
+            this.classList.remove('drag-over');
+        }
+        
+        function handleDrop(e) {
+            if (e.stopPropagation) e.stopPropagation();
+            
+            if (draggedElement !== this) {
+                const dragIdx = parseInt(draggedElement.dataset.index);
+                const targetIdx = parseInt(this.dataset.index);
+                
+                [uploadedImages[dragIdx], uploadedImages[targetIdx]] = 
+                [uploadedImages[targetIdx], uploadedImages[dragIdx]];
+                
+                [imageTransforms[dragIdx], imageTransforms[targetIdx]] = 
+                [imageTransforms[targetIdx], imageTransforms[dragIdx]];
+                
+                updatePreviews();
+                createCollage();
+            }
+            
+            return false;
+        }
+        
+        function handleDragEnd(e) {
+            document.querySelectorAll('.preview-item').forEach(item => {
+                item.classList.remove('dragging', 'drag-over');
+            });
+        }
+        
+        function updatePreviews() {
+            previewContainer.innerHTML = '';
+            uploadedImages.forEach((img, index) => {
+                const div = document.createElement('div');
+                div.className = 'preview-item';
+                div.draggable = true;
+                div.dataset.index = index;
+                
+                div.innerHTML = `
+                    <span class="order-badge">${index + 1}</span>
+                    <img src="${img.src}">
+                    <button class="remove-btn" onclick="removeImage(${index})">×</button>
+                `;
+                
+                div.addEventListener('dragstart', handleDragStart);
+                div.addEventListener('dragover', handleDragOver);
+                div.addEventListener('dragenter', handleDragEnter);
+                div.addEventListener('dragleave', handleDragLeave);
+                div.addEventListener('drop', handleDrop);
+                div.addEventListener('dragend', handleDragEnd);
+                
+                previewContainer.appendChild(div);
+            });
+        }
+        
+        function drawDiagonalWatermark(ctx, w, h) {
+            const enabled = document.getElementById('watermarkEnable').checked;
+            if (!enabled) return;
+            
+            const text = document.getElementById('watermarkText').value;
+            if (!text) return;
+            
+            const size = parseInt(document.getElementById('watermarkSize').value);
+            const color = document.getElementById('watermarkColor').value;
+            const opacity = parseInt(document.getElementById('watermarkOpacity').value) / 100;
+            
+            ctx.save();
+            ctx.font = `bold ${size}px Impact`;
+            ctx.fillStyle = color;
+            ctx.globalAlpha = opacity;
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+            ctx.shadowBlur = 3;
+            
+            const spacing = size * 8;
+            const diagonal = Math.sqrt(w * w + h * h);
+            
+            ctx.translate(w / 2, h / 2);
+            ctx.rotate(-45 * Math.PI / 180);
+            
+            for (let x = -diagonal; x < diagonal; x += spacing) {
+                for (let y = -diagonal; y < diagonal; y += spacing) {
+                    ctx.fillText(text, x + (Math.random() - 0.5) * 20, y + (Math.random() - 0.5) * 20);
+                }
+            }
+            
+            ctx.restore();
+        }
+        
+        function renderLayouts(filter = 'all') {
+            layoutContainer.innerHTML = '';
+            let filtered = filter === 'all' ? allLayouts : 
+                          filter === '7-9' ? allLayouts.filter(l => l.type === '7-9') :
+                          allLayouts.filter(l => l.type === filter);
+            
+            document.getElementById('layoutCount').textContent = `${filtered.length} layouts`;
+            
+            filtered.forEach((layout, index) => {
+                const btn = document.createElement('div');
+                btn.className = 'layout-btn';
+                if (index === 0 && !currentLayout) {
+                    btn.classList.add('active');
+                    currentLayout = layout;
+                }
+                
+                const preview = document.createElement('div');
+                preview.className = 'layout-preview';
+                preview.style.position = 'relative';
+                preview.style.background = '#fff';
+                
+                layout.pos.slice(0, 20).forEach(p => {
+                    const cell = document.createElement('div');
+                    cell.style.position = 'absolute';
+                    cell.style.left = (p[0] * 100) + '%';
+                    cell.style.top = (p[1] * 100) + '%';
+                    cell.style.width = (p[2] * 100) + '%';
+                    cell.style.height = (p[3] * 100) + '%';
+                    cell.style.background = '#667eea';
+                    cell.style.border = '0.5px solid white';
+                    if (p[4]) cell.style.transform = `rotate(${p[4]}deg)`;
+                    preview.appendChild(cell);
+                });
+                
+                btn.appendChild(preview);
+                btn.appendChild(document.createTextNode(layout.name));
+                
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.layout-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentLayout = layout;
+                    
+                    imageTransforms = {};
+                    uploadedImages.forEach((_, i) => initTransform(i));
+                    
+                    createCollage();
+                });
+                
+                layoutContainer.appendChild(btn);
+            });
+        }
+        
+        document.querySelectorAll('.filter-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                renderLayouts(this.dataset.filter);
+            });
+        });
+        
+        ['watermarkText', 'watermarkSize', 'watermarkColor', 'watermarkOpacity', 'watermarkEnable'].forEach(id => {
+            const elem = document.getElementById(id);
+            if (elem) {
+                elem.addEventListener('input', () => createCollage());
+                elem.addEventListener('change', () => createCollage());
+            }
+        });
+        
+        document.getElementById('imageUpload').addEventListener('change', function(e) {
+            Array.from(e.target.files).slice(0, 100).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = event => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const index = uploadedImages.length;
+                        uploadedImages.push(img);
+                        initTransform(index);
+                        updatePreviews();
+                        createCollage();
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+        
+        window.removeImage = function(index) {
+            uploadedImages.splice(index, 1);
+            delete imageTransforms[index];
+            
+            const newTransforms = {};
+            Object.keys(imageTransforms).forEach(key => {
+                const oldIndex = parseInt(key);
+                if (oldIndex > index) {
+                    newTransforms[oldIndex - 1] = imageTransforms[oldIndex];
+                } else if (oldIndex < index) {
+                    newTransforms[oldIndex] = imageTransforms[oldIndex];
+                }
+            });
+            imageTransforms = newTransforms;
+            
+            updatePreviews();
+            createCollage();
+        };
+        
+        function createCollage() {
+            if (!uploadedImages.length || !currentLayout) {
+                canvas.width = 800;
+                canvas.height = 600;
+                ctx.fillStyle = '#f0f0f0';
+                ctx.fillRect(0, 0, 800, 600);
+                ctx.fillStyle = '#999';
+                ctx.font = '24px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Chưa có ảnh', 400, 300);
+                return;
+            }
+            
+            const cw = 1600, ch = 1600;
+            const border = currentFrame === 'bold' ? 16 : 8;
+            
+            canvas.width = cw;
+            canvas.height = ch;
+            
+            ctx.fillStyle = '#f5f5f5';
+            ctx.fillRect(0, 0, cw, ch);
+            
+            currentLayout.pos.forEach((pos, i) => {
+                if (uploadedImages[i]) {
+                    const x = pos[0] * cw, y = pos[1] * ch, w = pos[2] * cw, h = pos[3] * ch;
+                    const rotation = pos[4] || 0;
+                    
+                    ctx.save();
+                    
+                    if (rotation !== 0) {
+                        ctx.translate(x + w/2, y + h/2);
+                        ctx.rotate(rotation * Math.PI / 180);
+                        ctx.translate(-w/2, -h/2);
+                    } else {
+                        ctx.translate(x, y);
+                    }
+                    
+                    drawFrame(ctx, 0, 0, w, h, currentFrame);
+                    
+                    const img = uploadedImages[i];
+                    const imgX = border, imgY = border, imgW = w - border*2, imgH = h - border*2;
+                    
+                    initTransform(i);
+                    const transform = imageTransforms[i];
+                    
+                    const ratio = img.width / img.height;
+                    const boxRatio = imgW / imgH;
+                    
+                    let sx, sy, sw, sh, dx, dy, dw, dh;
+                    
+                    if (transform.mode === 'contain') {
+                        if (ratio > boxRatio) {
+                            dw = imgW * transform.scale;
+                            dh = dw / ratio;
+                        } else {
+                            dh = imgH * transform.scale;
+                            dw = dh * ratio;
+                        }
+                        dx = imgX + (imgW - dw) / 2 + transform.offsetX * imgW;
+                        dy = imgY + (imgH - dh) / 2 + transform.offsetY * imgH;
+                        sx = 0;
+                        sy = 0;
+                        sw = img.width;
+                        sh = img.height;
+                    } else {
+                        if (ratio > boxRatio) {
+                            sh = img.height;
+                            sw = img.height * boxRatio / transform.scale;
+                            sx = (img.width - sw) / 2 + transform.offsetX * img.width;
+                            sy = transform.offsetY * img.height;
+                        } else {
+                            sw = img.width;
+                            sh = img.width / boxRatio / transform.scale;
+                            sx = transform.offsetX * img.width;
+                            sy = (img.height - sh) / 2 + transform.offsetY * img.height;
+                        }
+                        dx = imgX;
+                        dy = imgY;
+                        dw = imgW;
+                        dh = imgH;
+                    }
+                    
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.rect(imgX, imgY, imgW, imgH);
+                    ctx.clip();
+                    
+                    ctx.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh);
+                    
+                    ctx.restore();
+                    ctx.restore();
+                }
+            });
+            
+            drawDiagonalWatermark(ctx, cw, ch);
+        }
+        
+        document.getElementById('downloadBtn').addEventListener('click', () => {
+            if (!uploadedImages.length) return alert('Chưa có ảnh!');
+            const link = document.createElement('a');
+            link.download = `collage_${currentFrame}_${Date.now()}.png`;
+            link.href = canvas.toDataURL('image/png', 1.0);
+            link.click();
+        });
+        
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            if (confirm('Xóa tất cả?')) {
+                uploadedImages = [];
+                imageTransforms = {};
+                updatePreviews();
+                createCollage();
+            }
+        });
+        
+               renderLayouts();
+        createCollage();
+        
+        // ===== MÃ GIỚI THIỆU =====
+        function checkAccessCode() {
+            const code = document.getElementById('accessCode').value.trim();
+            const correctCode = 'dien2589'; // MÃ CỦA BẠN
+            
+            if (code === correctCode) {
+                document.getElementById('accessScreen').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                localStorage.setItem('accessGranted', 'true');
+            } else {
+                document.getElementById('errorMsg').style.display = 'block';
+                document.getElementById('accessCode').value = '';
+                document.getElementById('accessCode').focus();
+            }
+        }
+        
+        // Enter để submit
+        document.getElementById('accessCode').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') checkAccessCode();
+        });
+        
+        // Kiểm tra đã đăng nhập chưa
+        if (localStorage.getItem('accessGranted') === 'true') {
+            document.getElementById('accessScreen').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+        }
+    </script>
+
+</body>
+</html>
