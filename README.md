@@ -24,16 +24,6 @@
 6. **Click canvas** zoom/pan từng ảnh
 7. **Download** PNG chất lượng cao
 
-## 📁 Cấu Trúc Dự Án
-
-ghap-anh-pro/
-├── index.html # Single file app (45KB)
-├── README.md # Tài liệu này
-├── LICENSE # MIT License
-└── screenshots/ # Ảnh demo (optional)
-
-text
-
 ## 🛠️ Công Nghệ Stack
 
 HTML5 Canvas Rendering
